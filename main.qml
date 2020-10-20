@@ -70,18 +70,44 @@ PainterPlugin {
 		alg.log.info("onComputationStatusChanged: "+isComputing)
 	}
 
+    function onSelectedLayer() {
+        alg.log.info("fired")
+		
+    }
+
 	onExportAboutToStart: function(maps) {
 		// Called just before the export process starts.
 		// 'maps' is the list of filepaths expected to be written.
 		alg.log.info("onExportAboutToStart: ")
-		alg.log.info(alg.display)
+        alg.log.info(alg.display)
+        var stack = alg.mapexport.documentStructure()
+		var materials = stack["materials"]
+		alg.log.info(materials.length)
+        var selectedLayer;
+		for(var i = 0; i < materials.length; i++) {
+			// alg.log.info(i)
+			if(materials[i].selected) {
+				// alg.log.info(materials[i].name)
+                var layers = materials[i].stacks.map(_ => _.layers)
+                // alg.log.info(layers)
+                layers.forEach(layer => {
+                   layer.forEach(item => {
+                       if(item.selected) {
+                        //    alg.log.info(item.name)
+                           return selectedLayer = item.name
+                       }
+                   })
+                })
+			}
+		}
+        alg.log.info(selectedLayer + " selectedLayer")
+        alg.mapexport.selectedLayer(selectedLayer)
+        alg.log.info(selectedLayer)
 		for (var stackName in maps) {
 		    alg.log.info(stackName);
 		    for (var filePath in maps[stackName]) {
-			alg.log.info(maps[stackName][filePath]);
-		    }
-		    for (var layerSelected in maps[stackName]) {
-			    alg.log.info(maps[layerSelected][filePath])
+			alg.log.info(maps[stackName][selectedLayer][filePath])
+            
 		    }
 		}
 
@@ -132,32 +158,6 @@ PainterPlugin {
 		// Called after the active texture set stack changes, 'activeTextureSetStack' contains the new active stack path.
 		// The stack path may be empty if no texture set stack is active. This can happen when closing a project.
 		alg.log.info("onActiveTextureSetChanged: " + stackPath)
-		alg.log.info("fired")
-		var stack = alg.mapexport.documentStructure()
-		var materials = stack["materials"]
-		alg.log.info(materials.length)
-        var selectedLayer;
-		for(var i = 0; i < materials.length; i++) {
-			// alg.log.info(i)
-			if(materials[i].selected) {
-				// alg.log.info(materials[i].name)
-                var layers = materials[i].stacks.map(_ => _.layers)
-                // alg.log.info(layers)
-                layers.forEach(layer => {
-                   layer.forEach(item => {
-                       if(item.selected) {
-                           alg.log.info(item.name)
-                           return selectedLayer = item.name
-                       }
-                   })
-                })
-                // layers.forEach(layer => if(_.enabled) {
-                //     selectedLayer = _.name
-                //     alg.log.info(selectedLayer)
-                //     return selectedLayer
-                // })
-			}
-		}
 
 	}
 
